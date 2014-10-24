@@ -14,23 +14,11 @@ namespace TRParser
         private Catalog _catalog;
         private Func<TopRambler,HashSet<string>> _setCatalog;
 
-        //private const string PatternNext = @"<a id=""nextPage"" class=""n_pager_next"" href=""(?<link>.*)"">\w+</a>";
-        //private const string PatternElement = @"<a name=""\d+"" href=""(?<url>.*?)"".*>\s*(?<name>.*)\s*</a>";
-        //private const string PatternRating = @"<td align=""right"">(?<int>-?[\d&nbsp;]+)</td>";
-
-        //private Regex _regNext;
-        //private Regex _regElement; 
-        //private Regex _regRating;
-
         public Downloader(Catalog catalog, Dictionary<string, TopRambler> cache, bool isCatOrGeo)
         {
             _cache = cache;
             _catalog = catalog;
             _setCatalog = x => isCatOrGeo ? x.FullPath : x.Geo;
-
-            //_regNext = new Regex(PatternNext);
-            //_regElement = new Regex(PatternElement);
-            //_regRating = new Regex(PatternRating);
         }
 
         public void Run(object state=null){
@@ -91,12 +79,6 @@ namespace TRParser
                         _catalog.Url = next.Attributes.AttributesWithName("href").First().Value;                        
                     }
                     else break;
-                    //var mchNext = _regNext.Match(page);
-                    //if (mchNext.Success)
-                    //{
-                    //    _catalog.Url = mchNext.Groups["link"].Value;
-                    //}
-                    //else break;
                 }
                 catch (Exception e) { Console.WriteLine("[Downloader|ERROR]:\t"+e.Message+"\n"+e.StackTrace); }
             }

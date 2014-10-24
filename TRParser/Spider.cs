@@ -61,10 +61,10 @@ namespace TRParser
             var tsk = new Task(SaveLoop);
             tsk.Start();
             var opt = new ParallelOptions { MaxDegreeOfParallelism = 50 };
-            Parallel.ForEach(_catalogs, opt, (item) =>
-            {
-                if (!item.IsFinished) new Downloader(item, _cache, true).Run();
-            });
+            //Parallel.ForEach(_catalogs, opt, (item) =>
+            //{
+            //    if (!item.IsFinished) new Downloader(item, _cache, true).Run();
+            //});
 
             Parallel.ForEach(_catalogsGeo, opt, (item) =>
             {
@@ -72,15 +72,6 @@ namespace TRParser
             });
 
             Save();
-            //while (_queue.Any())
-            //{
-            //    var item = _queue.Dequeue();
-
-            //    //ThreadPool.QueueUserWorkItem(new Downloader(item, _cache).Run);
-            //    //new Downloader(item, _cache).Run();
-            //    //var th = new Thread(new Downloader(item, _cache).Run);
-            //    //th.Start();
-            //}
         }
         private void ParseCatalogs(bool isCatOrGeo = true)
         {
@@ -205,75 +196,5 @@ namespace TRParser
             Program.SaveAll(_cache.Values.ToArray(), "mongodb://localhost:27017/topRambler");
             Program.ColoredPrint("Сохранение завершено", ConsoleColor.White);
         }
-
-        //private const string PatternCatalog = @"<a href=""(?<url>.+?)"">(?<name>[-\w,. ]+)</a>";
-        //private const string PatternCatalogBegFirst = @"<div class=""cl"" id=""theme_full"">";//<h3>Тема:</h3>
-        //private const string PatternCatalogBeg = @"(?<=<div class=""cl"" id=""theme_full"">[\w\s\p{S}\p{P}]*?<dd>)";
-        //private const string PatternCatalogEnd = @"</dl>\s*</div>";
-
-        //private void ParseCatalogsOld()
-        //{
-        //    var regCatalog = new Regex(PatternCatalog);
-        //    var regBeginFirst = new Regex(PatternCatalogBegFirst);
-        //    var regBegin = new Regex(PatternCatalogBeg);
-        //    var regEnd = new Regex(PatternCatalogEnd);
-
-        //    var isFirst = false;
-
-        //    var localQueue = new Queue<Catalog>();
-        //    localQueue.Enqueue(new Catalog("", "?theme=321%2F332"));
-        //    var listCatalogs = new List<Catalog>();
-
-        //    while (localQueue.Any())
-        //    {
-        //        try
-        //        {
-        //            var catalog = localQueue.Dequeue();
-        //            var message = "Извлечен следующий каталог :" + catalog.Name;
-        //            Console.WriteLine(message);
-        //            Program.AddToFileLog("[Spider|INFO]:\t" + message);
-
-        //            var page = Program.DownloadPage(catalog.Url);
-        //            if (page == null)
-        //            {
-        //                localQueue.Enqueue(catalog);
-        //                message = "Каталог - " + catalog.Name + "не был скачан. Добавляем в конец очереди.";
-        //                Console.WriteLine(message);
-        //                Program.AddToFileLog("[Spider|WARN]:\t" + message);
-        //                continue;
-        //            }
-        //            var mchBeg = ((isFirst) ? regBeginFirst : regBegin).Match(page);
-        //            isFirst = false;
-
-        //            if (!mchBeg.Success || mchBeg.Value == "")
-        //            {
-        //                message = "Дошли до листового каталога:" + catalog.Name + "(" + catalog.Url + ")";
-
-        //                Program.ColoredPrint(message, ConsoleColor.Green);
-        //                Program.AddToFileLog("[Spider|INFO]:\t" + message);
-
-        //                //var th = new Thread(new Downloader(page, _cache).Run);
-        //                //th.Start();
-        //                catalog.IsSheet = true;
-        //                listCatalogs.Add(catalog);
-
-        //                continue;
-        //            }
-
-        //            var beg = mchBeg.Index;
-        //            var len = regEnd.Match(page, beg).Index - beg;
-
-        //            var mch = regCatalog.Match(page, beg, len);
-        //            do
-        //            {
-        //                var cat = new Catalog(catalog.Name + "/" + mch.Groups["name"].Value, mch.Groups["url"].Value);
-        //                localQueue.Enqueue(cat);
-        //            } while ((mch = mch.NextMatch()).Value != "");
-        //        }
-        //        catch (Exception e) { Program.AddToFileLog("[Spider|ERROR]:\t" + e.Message + "\n" + e.StackTrace); }
-        //    }
-        //    //"_queue = listCatalogs;"
-        //    SaveCatalogs(listCatalogs);
-        //}
     }
 }
