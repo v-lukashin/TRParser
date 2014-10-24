@@ -16,5 +16,6 @@ namespace TRParser
         public string Name { get; set; }
         public string Url { get; set; }
         public bool IsSheet { get; set; }
+        public bool IsFinished { get; set; }
     }
 }

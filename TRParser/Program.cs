@@ -20,17 +20,23 @@ namespace TRParser
         static void Main(string[] args)
         {
             new Spider().Run();
+            //TestAgP();
+            //TestCat();
         }
 
 
         static void TestCat()
         {
-            string page = DownloadPage(@"http://top100.rambler.ru/navi/?theme=38&pageCount=1000&stat=1&page=3");
+            //string page = DownloadPage(@"http://top100.rambler.ru/navi/?theme=38&pageCount=1000&stat=1&page=3");
+            string page = DownloadPage(@"http://top100.rambler.ru/navi/?theme=157%2F194%2F197");
+        
             const string PatternCatalog = @"<a href=""(?<url>.+?)"">(?<name>[-\w, ]+)</a>";
             const string PatternCatalogBegFirst = @"<div class=""cl"" id=""theme_full"">";
             const string PatternCatalogBeg = @"(?<=<div class=""cl"" id=""theme_full"">[\w\s\p{S}\p{P}]*<dd>)";
             const string PatternCatalogEnd = @"</dl>\s*</div>";
-            var beg = new Regex(PatternCatalogBeg).Match(page).Index;
+            var mchBeg = new Regex(PatternCatalogBeg).Match(page);
+            var fl = mchBeg.Success;
+            var beg = mchBeg.Index;
             var len = new Regex(PatternCatalogEnd).Match(page, beg).Index - beg;
             var reg = new Regex(PatternCatalog);
             var mch = reg.Match(page, beg, len);
@@ -50,6 +56,20 @@ namespace TRParser
             Console.WriteLine("Cnt = " + matches.Count);
         }
 
+        static void TestAgP()
+        {
+            string page = DownloadPage(@"http://top100.rambler.ru/navi/");
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(page);
+            var node = doc.DocumentNode.SelectSingleNode("//*[@id=\"theme_full\"]");
+            var href = node.SelectNodes("dl/dt/a");
+
+            foreach (var item in href)
+            {
+                Console.WriteLine(item.InnerText);
+            }
+        }
+
 
         #region Вспомогательные методы
         public static string DownloadPage(string link, int attemptCount = 10, int waitTimeAttemptSec = 0)
@@ -66,13 +86,14 @@ namespace TRParser
             {
                 try
                 {
-                    Thread.Sleep(sleepTime);
                     page = cli.DownloadString(link);
                     break;
                 }
                 catch (WebException)
                 {
                     Console.WriteLine("TimeoutError({0}). Repeat", i);
+
+                    Thread.Sleep(sleepTime);
                 }
             }
             return page;
@@ -107,7 +128,7 @@ namespace TRParser
             _buffer = "";
         }
 
-        private static void SaveAll(IEnumerable<TopRambler> all, string connStr)
+        public static void SaveAll(IEnumerable<TopRambler> all, string connStr)
         {
             Console.Write("Saving...");
             var url = MongoUrl.Create(connStr);
@@ -130,6 +151,12 @@ namespace TRParser
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ForegroundColor = tmpColor;
+        }
+
+        public static int GetInt(string str)
+        {
+            str = new Regex(@"\s|&nbsp;").Replace(str, string.Empty);
+            return int.Parse(str);
         }
         #endregion
     }
