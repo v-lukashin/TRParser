@@ -145,6 +145,29 @@ namespace TRParser
             Console.WriteLine("done ({0}).", index);
             AddToFileLog("Saved " + index + " items");
         }
+
+        public static Dictionary<string, TopRambler> LoadAll(string connStr)
+        {
+            Console.Write("Loading...");
+            var url = MongoUrl.Create(connStr);
+            var collect =
+                new MongoClient(url).GetServer()
+                    .GetDatabase(url.DatabaseName)
+                    .GetCollection<TopRambler>(typeof(TopRambler).Name);
+            var res = new Dictionary<string, TopRambler>();
+
+            var index = 0;
+            foreach (var item in collect.FindAll())
+            {
+                res.Add(item.Url, item);
+                index++;
+            }
+
+            Console.WriteLine("done ({0}).", index);
+            AddToFileLog("Loaded " + index + " items");
+            return res;
+        }
+
         public static void ColoredPrint(string text, ConsoleColor color)
         {
             var tmpColor = Console.ForegroundColor;

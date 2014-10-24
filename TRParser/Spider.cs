@@ -30,41 +30,51 @@ namespace TRParser
         }
         private void Preprocessing()
         {
-            var answ = true;
-            while (answ)
+            var runCat = false;
+            var runGeo = false;
+
+            while (true)
             {
                 Console.WriteLine("Загрузить каталоги?(y/n)");
                 var key = Console.ReadKey().KeyChar;
                 switch (key)
                 {
-                    case 'y': _catalogs = ReadCatalogs("Catalogs.txt"); answ = false; break;
-                    case 'n': ParseCatalogs(true); answ = false; break;
-                    default: Console.WriteLine("Неверно. Повторите ввод!"); break;
+                    case 'y': runCat = true; break;
+                    case 'n': break;
+                    default: Console.WriteLine("Неверно. Повторите ввод!"); continue;
                 }
+                break;
             }
-            answ = true;
-            while (answ)
+            while (true)
             {
                 Console.WriteLine("Загрузить гео?(y/n)");
                 var key = Console.ReadKey().KeyChar;
                 switch (key)
                 {
-                    case 'y': _catalogsGeo = ReadCatalogs("Geo.txt"); answ = false; break;
-                    case 'n': ParseCatalogs(false); answ = false; break;
-                    default: Console.WriteLine("Неверно. Повторите ввод!"); break;
+                    case 'y': runGeo = true; break;
+                    case 'n': break;
+                    default: Console.WriteLine("Неверно. Повторите ввод!"); continue;
                 }
+                break;
             }
 
+            if (runCat)_catalogs = ReadCatalogs("Catalogs.txt");
+            else ParseCatalogs(true);
+
+            if (runGeo) _catalogsGeo = ReadCatalogs("Geo.txt");
+            else ParseCatalogs(false);
+
+            _cache = Program.LoadAll("mongodb://localhost:27017/topRambler");
         }
         private void Processing()
         {
             var tsk = new Task(SaveLoop);
             tsk.Start();
             var opt = new ParallelOptions { MaxDegreeOfParallelism = 50 };
-            //Parallel.ForEach(_catalogs, opt, (item) =>
-            //{
-            //    if (!item.IsFinished) new Downloader(item, _cache, true).Run();
-            //});
+            Parallel.ForEach(_catalogs, opt, (item) =>
+            {
+                if (!item.IsFinished) new Downloader(item, _cache, true).Run();
+            });
 
             Parallel.ForEach(_catalogsGeo, opt, (item) =>
             {
@@ -130,14 +140,13 @@ namespace TRParser
                         continue;
                     }
 
-                    if (!isCatOrGeo) listCatalogs.Add(catalog);
+                    listCatalogs.Add(catalog);
 
-                    
                     isFirst = false;
 
                     foreach (var a in href)
                     {
-                        var cat = new Catalog(isCatOrGeo ? catalog.Name + "/" : "" + a.InnerText, a.Attributes.AttributesWithName("href").ElementAt(0).Value);
+                        var cat = new Catalog((isCatOrGeo ? catalog.Name + "/" : "") + a.InnerText, a.Attributes.AttributesWithName("href").First().Value);
                         localQueue.Enqueue(cat);
                     }
 
