@@ -35,7 +35,7 @@ namespace TRParser
 
             while (true)
             {
-                Console.WriteLine("Загрузить каталоги?(y/n)");
+                Console.WriteLine("Пропарсить каталоги заново?(y/n)");
                 var key = Console.ReadKey().KeyChar;
                 switch (key)
                 {
@@ -47,7 +47,7 @@ namespace TRParser
             }
             while (true)
             {
-                Console.WriteLine("Загрузить гео?(y/n)");
+                Console.WriteLine("Пропарсить гео заново?(y/n)");
                 var key = Console.ReadKey().KeyChar;
                 switch (key)
                 {
@@ -58,10 +58,10 @@ namespace TRParser
                 break;
             }
 
-            if (runCat)_catalogs = ReadCatalogs("Catalogs.txt");
+            if (!runCat)_catalogs = ReadCatalogs("Catalogs.txt");
             else ParseCatalogs(true);
 
-            if (runGeo) _catalogsGeo = ReadCatalogs("Geo.txt");
+            if (!runGeo) _catalogsGeo = ReadCatalogs("Geo.txt");
             else ParseCatalogs(false);
 
             _cache = Program.LoadAll("mongodb://localhost:27017/topRambler");
@@ -125,9 +125,9 @@ namespace TRParser
                     doc.LoadHtml(page);
 
                     var node = doc.DocumentNode.SelectSingleNode(isCatOrGeo ? "//div[@id=\"theme_full\"]" : "//div[@id=\"region_full\"]");
-                    var href = node.SelectNodes((isFirst) ? "dl/dt/a" : "dl/dd/a");
+                    var href = node != null ? node.SelectNodes((isFirst) ? "dl/dt/a" : "dl/dd/a") : null;
 
-                    if (node == null || href == null)
+                    if (href == null)
                     {
                         message = "Дошли до листового каталога:" + catalog.Name + "(" + catalog.Url + ")";
 

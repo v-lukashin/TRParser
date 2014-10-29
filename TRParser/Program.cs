@@ -19,11 +19,19 @@ namespace TRParser
         private const int BufferMaxSize = 10;
         static void Main(string[] args)
         {
-            new Spider().Run();
+            AddShortUrl();
+            //new Spider().Run();
             //TestAgP();
             //TestCat();
+            //LoadAll("mongodb://localhost:27017/topRambler");
         }
 
+        static void AddShortUrl()
+        {
+            var all = LoadAll("mongodb://localhost:27017/topRambler");
+
+            SaveAll(all.Values, "mongodb://localhost:27017/topRamblerTestShortUrl");
+        }
 
         static void TestCat()
         {

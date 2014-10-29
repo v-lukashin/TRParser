@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace TRParser
 {
-    [BsonIgnoreExtraElements]
     public class TopRambler
     {
         public TopRambler()
@@ -39,6 +38,14 @@ namespace TRParser
                 if (!new Regex("^https?://").Match(value).Success) value = "http://" + value;
                 _url = value;
             }
+        }
+        public string ShortUrl
+        {
+            get
+            {
+                return new Regex(@"^https?://|www\.|/.*").Replace(Url, string.Empty);
+            }
+            set { }
         }
         public string Name { get; set; }
         public HashSet<string> FullPath { get; set; }
