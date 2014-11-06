@@ -42,7 +42,7 @@ namespace TRParser
                     foreach (var row in rows)
                     {
                         var href = row.SelectSingleNode("td/div/div/div/a[2]");
-                        var url = href.Attributes.AttributesWithName("href").First().Value;
+                        var url = href.GetAttributeValue("href", null);
 
                         var elem = new TopRambler { Url = url };
 
@@ -76,7 +76,7 @@ namespace TRParser
                     var next = doc.DocumentNode.SelectSingleNode("//*[@id=\"nextPage\"]");
                     if (next != null)
                     {
-                        _catalog.Url = next.Attributes.AttributesWithName("href").First().Value;                        
+                        _catalog.Url = next.GetAttributeValue("href", null);                        
                     }
                     else break;
                 }

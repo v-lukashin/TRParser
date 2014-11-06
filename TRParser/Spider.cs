@@ -146,7 +146,7 @@ namespace TRParser
 
                     foreach (var a in href)
                     {
-                        var cat = new Catalog((isCatOrGeo ? catalog.Name + "/" : "") + a.InnerText, a.Attributes.AttributesWithName("href").First().Value);
+                        var cat = new Catalog((isCatOrGeo ? catalog.Name + "/" : "") + a.InnerText, a.GetAttributeValue("href", null));
                         localQueue.Enqueue(cat);
                     }
 
